@@ -31,5 +31,6 @@ class PlayerParser:
 		for label in preferedVideoDE:
 			if label in d:
 				return {'media':[{'url':d[label], 'stream':'HLS'}]}
+		return {'media':[{'url':j['data']['attributes']['streams'][0]['url'], 'stream':'HLS'}]}#fallback
 
 

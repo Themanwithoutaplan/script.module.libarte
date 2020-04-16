@@ -43,21 +43,30 @@ class APIParser:
 	def parseDataCode(self,code='playlists_HOME',data='MANUAL_TEASERS'):
 		return self._getData(f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=square,landscape,banner,portrait&code={code}&page=1&limit=100')
 
-	def parseDataVideoType(self,data,videoType):
-		#return _getData(f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=banner&videoType={videoType}&page=1&limit=100')
-		return self._getData(f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=square,landscape,banner,portrait&videoType={videoType}&page=1&limit=100')
+	def parseData(self,data,uriParams):
+		url = f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=square,landscape,banner,portrait&page=1&limit=100'
+		for k,v in json.loads(uriParams).items():
+			url += f'&{k}={v}'
+		print(url)
+		return self._getData(url)
 
 	def _getData(self,url):
 		j = requests.get(url, headers=headers).json()
 		for item in j['data']:
-			if item['kind']['code'] == 'SHOW':
+			if item['kind']['code'] == 'SHOW' or item['kind']['code'] == 'BONUS':
 				d = {'type':'video', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}}
 				d['metadata']['duration'] = item['duration']
 				d['metadata']['mpaa'] = item['ageRating']
 				d['params']['programId'] = item['programId']
+			elif item['kind']['code'] == 'LIVE_EVENT':
+				d = {'type':'video', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}}
+				d['metadata']['mpaa'] = item['ageRating']
+				d['params']['programId'] = item['programId']
 			else:
-				d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}}
-				d['params']['collectionId'] = item['programId']
+				#d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}}
+				#d['params']['collectionId'] = item['programId']
+				d = {'type':'dir', 'params':{'mode':'libArteListData', 'data':'COLLECTION_VIDEOS'}, 'metadata':{'art':{}}}
+				d['params']['uriParams'] = f'{{"collectionId":"{item["programId"]}"}}'
 			#d['metadata']['name'] = item['title']
 			d['metadata']['tvshowtitle'] = item['title']
 			if item['subtitle'] != None:
@@ -108,6 +117,7 @@ class APIParser:
 
 	def parsePagesShows(self,uri):
 		self.result['content'] = 'tvshows'
+		print(f'{self.baseURL}/{self.lang}/web/pages/{uri}')
 		j = requests.get(f'{self.baseURL}/{self.lang}/web/pages/{uri}').json()
 		for item in j['zones'][0]['data']:
 			d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}}
@@ -127,6 +137,7 @@ class APIParser:
 
 	def parsePagesVideos(self,uri,content='videos'):
 		self.result['content'] = content
+		print(f'{self.baseURL}/{self.lang}/web/pages/{uri}')
 		j = requests.get(f'{self.baseURL}/{self.lang}/web/pages/{uri}').json()
 		for item in j['zones'][0]['data']:
 			#d = {'type':'dir', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}, 'type': 'video'}

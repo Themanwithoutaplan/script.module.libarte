@@ -15,8 +15,7 @@ class libarte(lm4):
 
 		self.modes = {
 			'libArteListMain': self.libArteListMain,
-			'libArteListDataCode': self.libArteListDataCode,
-			'libArteListDataVideoType': self.libArteListDataVideoType,
+			'libArteListData': self.libArteListData,
 			'libArteListCollection': self.libArteListCollection,
 			'libArteListShows': self.libArteListShows,
 			'libArteListVideos': self.libArteListVideos,
@@ -35,12 +34,13 @@ class libarte(lm4):
 	def libArteListMain(self):
 		#return self.parser.parseHome()
 		l = []
-		l.append({'metadata':{'name':self.translation(32032)}, 'params':{'mode':'libArteListDataVideoType', 'data':'VIDEO_LISTING', 'videoType':'MOST_RECENT'}, 'type':'dir'})
-		l.append({'metadata':{'name':self.translation(32031)}, 'params':{'mode':'libArteListDataVideoType', 'data':'VIDEO_LISTING', 'videoType':'MOST_VIEWED'}, 'type':'dir'})
-		l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListShows','uri':'magazines'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32032)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MOST_RECENT"}'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32031)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MOST_VIEWED"}'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MAGAZINES"}'}, 'type':'dir'})
+		#l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListShows','uri':'magazines'}, 'type':'dir'})
 		#l.append({'metadata':{'name':'shows'}, 'params':{'mode':'libArteListCode', 'code':'listing_MAGAZINES'}, 'type':'dir'})
-		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libArteListDate', 'code':'listing_MAGAZINES'}, 'type':'dir'})
-		l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListDataVideoType', 'data':'VIDEO_LISTING', 'videoType':'LAST_CHANCE'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libArteListDate'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"LAST_CHANCE"}'}, 'type':'dir'})
 		#l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListVideos', 'uri':'highlights_category'}, 'type':'dir'})
 		return {'items':l,'name':'root'}
 		
@@ -51,11 +51,8 @@ class libarte(lm4):
 	def libArteListVideos(self):
 		return self.parser.parsePagesVideos(self.params['uri'])
 
-	def libArteListDataCode(self):
-		return self.parser.parseDataCode(self.params['code'])
-
-	def libArteListDataVideoType(self):
-		return self.parser.parseDataVideoType(self.params['data'],self.params['videoType'])
+	def libArteListData(self):
+		return self.parser.parseData(self.params['data'],self.params['uriParams'])
 
 	def libArteListCollection(self):
 		return self.parser.parseCollection(self.params['collectionId'])
