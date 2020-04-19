@@ -23,9 +23,11 @@ class libarte(lm4):
 			
 			'libArteThemes': self.libArteThemes,
 			'libArteListDateVideos': self.libArteListDateVideos,
-			'libArteSearch': self.libArteSearch,
-			'libArteListSearch': self.libArteListSearch,
 		})
+
+		self.searchModes = {
+			'libArteListSearch': self.libArteListSearch,
+		}
 		self.playbackModes = {
 			'libArtePlay':self.libArtePlay,
 			'libArtePlayWeb':self.libArtePlayWeb,
@@ -39,6 +41,7 @@ class libarte(lm4):
 		l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MAGAZINES"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libMediathekListDate', 'subParams':'{"mode":"libArteListDateVideos"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"LAST_CHANCE"}'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32139)}, 'params':{'mode':'libMediathekSearch', 'searchMode':'libArteListSearch'}, 'type':'dir'})
 		#l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListVideos', 'uri':'highlights_category'}, 'type':'dir'})
 		return {'items':l,'name':'root'}
 		
@@ -71,10 +74,9 @@ class libarte(lm4):
 		#search_string = libMediathek.getSearchString()
 		return self.parser.getSearch(search_string)
 
-	def libArteListSearch(self,searchString=False):
-		if not searchString:
-			searchString = self.params['searchString']
-		return search(searchString)
+	def libArteListSearch(self,searchString):
+		#https://api-internal.arte.tv/api/emac/v3/de/web/data/SEARCH_LISTING/?imageFormats=landscape&mainZonePage=1&query=natur&page=2&limit=20
+		return self.parser.parseData('SEARCH_LISTING',f'{{"mainZonePage":"1", "query":"{searchString}"}}')
 			
 	def libArtePlay(self):
 		#return libArteJsonParser.getVideoUrl(self.params['url'])

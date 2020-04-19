@@ -45,6 +45,8 @@ class APIParser:
 
 	def parseData(self,data,uriParams):
 		url = f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=square,landscape,banner,portrait&page=1&limit=100'
+		print(url)
+		print(uriParams)
 		for k,v in json.loads(uriParams).items():
 			url += f'&{k}={v}'
 		print(url)
