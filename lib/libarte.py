@@ -10,10 +10,11 @@ baseApi = 'http://www.arte.tv/hbbtvv2/services/web/index.php'
 
 class libarte(lm4):
 	def __init__(self):
+		lm4.__init__(self)
 		self.parser = libartewebjsonparser.APIParser()
 		self.defaultMode = 'libArteListMain'
 
-		self.modes = {
+		self.modes.update({
 			'libArteListMain': self.libArteListMain,
 			'libArteListData': self.libArteListData,
 			'libArteListCollection': self.libArteListCollection,
@@ -21,11 +22,10 @@ class libarte(lm4):
 			'libArteListVideos': self.libArteListVideos,
 			
 			'libArteThemes': self.libArteThemes,
-			'libArteListDate': self.libArteListDate,
 			'libArteListDateVideos': self.libArteListDateVideos,
 			'libArteSearch': self.libArteSearch,
 			'libArteListSearch': self.libArteListSearch,
-		}
+		})
 		self.playbackModes = {
 			'libArtePlay':self.libArtePlay,
 			'libArtePlayWeb':self.libArtePlayWeb,
@@ -37,9 +37,7 @@ class libarte(lm4):
 		l.append({'metadata':{'name':self.translation(32032)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MOST_RECENT"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32031)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MOST_VIEWED"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"MAGAZINES"}'}, 'type':'dir'})
-		#l.append({'metadata':{'name':self.translation(32132)}, 'params':{'mode':'libArteListShows','uri':'magazines'}, 'type':'dir'})
-		#l.append({'metadata':{'name':'shows'}, 'params':{'mode':'libArteListCode', 'code':'listing_MAGAZINES'}, 'type':'dir'})
-		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libArteListDate'}, 'type':'dir'})
+		l.append({'metadata':{'name':self.translation(32133)}, 'params':{'mode':'libMediathekListDate', 'subParams':'{"mode":"libArteListDateVideos"}'}, 'type':'dir'})
 		l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListData', 'data':'VIDEO_LISTING', 'uriParams':'{"videoType":"LAST_CHANCE"}'}, 'type':'dir'})
 		#l.append({'metadata':{'name':self.translation(32033)}, 'params':{'mode':'libArteListVideos', 'uri':'highlights_category'}, 'type':'dir'})
 		return {'items':l,'name':'root'}
@@ -56,9 +54,6 @@ class libarte(lm4):
 
 	def libArteListCollection(self):
 		return self.parser.parseCollection(self.params['collectionId'])
-
-	def libArteListDate(self):
-		return self.populateDirDate('libArteListDateVideos')
 
 	def libArteListDateVideos(self):
 		return self.parser.parseDate(self.params['yyyymmdd'])
