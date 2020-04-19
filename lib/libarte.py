@@ -64,13 +64,9 @@ class libarte(lm4):
 		return player.parseVideo(self.params['programId'])
 
 
-
 	def libArteThemes(self):
 		return self.parser.getPlaylists()
-			
-	#def libArteListDateVideos(self):
-	#	return self.parser.getDateNew(self.params['yyyymmdd'])
-		
+					
 	def libArteSearch(self):
 		#search_string = libMediathek.getSearchString()
 		return self.parser.getSearch(search_string)
