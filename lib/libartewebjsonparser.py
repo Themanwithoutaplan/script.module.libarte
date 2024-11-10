@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-import json 
+import json
 import libmediathek4utils as lm4utils
 
 #https://player-v5-dev.arte.tv/static
@@ -13,7 +13,7 @@ headers = {'Authorization':'Bearer YTEwZWE3M2UxMTVmYmRjZmE0YTdmNjA4ZTI2NDczZDU3Y
 class APIParser:
 	def __init__(self):
 		self.result = {'items':[],'pagination':{'currentPage':0}}
-		self.baseURL = 'https://www.arte.tv/guide/api/emac/v3'
+		self.baseURL = 'https://www.arte.tv/guide/api/emac/v4'
 		self.baseURLGuide = 'https://www.arte.tv/api/emac/v3'
 		self.baseURLApp = 'https://api-cdn.arte.tv/api/emac/v3/'
 		self.token = 'YTEwZWE3M2UxMTVmYmRjZmE0YTdmNjA4ZTI2NDczZDU3YjdjYmVmMmRmNGFjOTM3M2RhNTM5ZjIxYmI3NTc1Zg'
@@ -30,7 +30,9 @@ class APIParser:
 		#https://player-v5-dev.arte.tv/static/artevp/5.0.6/config/json/general.json
 
 	def parseHome(self):
-		j = requests.get(f'{self.baseURL}/{self.lang}/web/HOME/').json()
+		headers = {"client":"web", "authorization":"Bearer anonymous_eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3d3dy5hcnRlLnR2IiwiYXVkIjpbImh0dHA6Ly9hcnRlLXJ2cDEuc2R2LmZyLyIsImh0dHA6Ly9hcnRlLXJ2cDIuc2R2LmZyLyIsImh0dHA6Ly9hcnRlLXJ2cDMuc2R2LmZyLyIsImh0dHA6Ly9hcnRlLXJ2cDQuc2R2LmZyLyJdLCJpYXQiOjE3MDU4NDA0OTEuMjEzNywibmJmIjoxNzA1ODQwNDkxLjIxMzcsInN1YiI6ImFub255bW91c184ZTY0OTBjNi1lOTAzLTQ1NTMtODJlYi00NzVkMzViNWQ2OGQiLCJ1aWQiOiJhbm9ueW1vdXNfOGU2NDkwYzYtZTkwMy00NTUzLTgyZWItNDc1ZDM1YjVkNjhkIiwiY2xpZW50Ijoid2ViIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIlJPTEVfQVBJX0FOT05ZTU9VUyJdfX0.M9alt_wIRjCEAaGp5dGRdWbT1DIhfIsbh4sdw7OI1YZUkhcig91OGdGac6-rFfB3rSHtX7wSXjCLczkxMYa1uNgr0TtJiqsOxouElyt9bNxDgPBH6S0XfJgpkoA7WT_QWPaoCSNhCGImbh0BBW8Nv2aYnMp41duaIfAVHB3_3Rg"}
+		j = requests.get(f'https://api.arte.tv/api/sso/v3/me/data/de', headers=headers).json()
+		return j
 		for zone in j['zones']:
 			d = {'type':'dir', 'params':{'mode':'libArteListData'}, 'metadata':{'art':{}}}
 			if zone['code']['name'] != None:
@@ -38,7 +40,7 @@ class APIParser:
 				d['params']['code'] = zone['code']['name']
 				self.result['items'].append(d)
 		return self.result
-		
+
 
 	def parseDataCode(self,code='playlists_HOME',data='MANUAL_TEASERS'):
 		return self._getData(f'{self.baseURL}/{self.lang}/web/data/{data}/?imageFormats=square,landscape,banner,portrait&code={code}&page=1&limit=100')
@@ -90,7 +92,7 @@ class APIParser:
 			self.result['items'].append(d)
 		return self.result
 
-		
+
 	def parseCollection(self,collectionId):
 		#j = requests.get(f'{self.baseURL}/{self.lang}/web/data/COLLECTION_VIDEOS/?collectionId={collectionId}&page=1&limit=100', headers=headers).json()
 		#self._getShows(j)
@@ -101,7 +103,7 @@ class APIParser:
 	def _getShows(self,j):
 		for item in j['data']:
 			d = {'type':'video', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}}
-			
+
 			d['metadata']['tvshowtitle'] = item['title']
 			if item['subtitle'] != None:
 				d['metadata']['name'] = item['subtitle']
@@ -115,7 +117,7 @@ class APIParser:
 			d['params']['programId'] = item['programId']
 			self.result['items'].append(d)
 
-		
+
 
 	def parsePagesShows(self,uri):
 		self.result['content'] = 'tvshows'
@@ -123,7 +125,7 @@ class APIParser:
 		j = requests.get(f'{self.baseURL}/{self.lang}/web/pages/{uri}').json()
 		for item in j['zones'][0]['data']:
 			d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}}
-			
+
 			d['metadata']['name'] = item['title']
 			d['metadata']['plotoutline'] = item['subtitle']
 			d['metadata']['plot'] = item['shortDescription']
@@ -147,7 +149,7 @@ class APIParser:
 				d = {'type':'video', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}}
 			else:
 				d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}}
-			
+
 			d['metadata']['name'] = item['title']
 			d['metadata']['plot'] = item['shortDescription']
 			d['metadata']['duration'] = item['duration']
@@ -168,7 +170,7 @@ class APIParser:
 		for item in j['zones'][1]['data']:
 			d = {'type':'video', 'params':{'mode':'libArtePlayWeb'}, 'metadata':{'art':{}}}
 			#d = {'type':'dir', 'params':{'mode':'libArteListCollection'}, 'metadata':{'art':{}}, 'type': 'dir'}
-			
+
 			d['metadata']['name'] = item['title']
 			d['metadata']['duration'] = item['duration']
 			d['metadata']['mpaa'] = item['ageRating']
@@ -210,7 +212,7 @@ class APIParser:
 
 
 
-	
+
 '''
 def getVideos(url):
 	l = []
@@ -223,7 +225,7 @@ def getVideos(url):
 			d['_name'] = video['subtitle']
 		else:
 			d['_name'] = video['title']
-		
+
 		d['_tvshowtitle'] = video['title']
 		if video['imageUrl'] != None:
 			d['_thumb'] = video['imageUrl']
@@ -263,7 +265,7 @@ def getAZ():
 		d['mode'] = 'libArteListVideos'
 		l.append(d)
 	return l
-	
+
 def getPlaylists():#,playlists, highlights
 	l = []
 	response = libMediathek.getUrl('http://www.arte.tv/hbbtvv2/services/web/index.php/EMAC/teasers/home/de')
@@ -279,9 +281,9 @@ def getPlaylists():#,playlists, highlights
 		d['mode'] = 'libArteListVideos'
 		l.append(d)
 	return l
-		
-	
-	
+
+
+
 def getDate(yyyymmdd):
 	l = []
 	response = libMediathek.getUrl('http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/programs/'+yyyymmdd+'/de')
@@ -298,10 +300,10 @@ def getDate(yyyymmdd):
 			#d['url'] = 'http://www.arte.tv/papi/tvguide/videos/stream/player/D/'+program['video']['emNumber']+'_PLUS7-D/ALL/ALL.json'
 			#d['url'] = 'http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/streams/'+program['video']['programId']+'/SHOW/ARTEPLUS7/de/DE'
 			#d['url'] = 'http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/streams/'+program['video']['programId']+'/'+program['video']['kind']+'/'+program['video']['platform']+'/de/DE'
-			
+
 			d['url'] = 'https://api.arte.tv/api/player/v1/config/de/'+program['video']['programId']+'?autostart=0&lifeCycle=1&lang=de_DE&config=arte_tvguide'
 			#d['programId'] = program['video']['programId']
-			
+
 			if program['video']['imageUrl'] != None:
 				d['_thumb'] = program['video']['imageUrl']
 			if program['video']['durationSeconds'] != None:
@@ -334,15 +336,15 @@ def getDateNew(yyyymmdd):
 		d['_airedtime'] = program['broadcastDate'][17:19]+':'+program['broadcastDate'][20:22]
 
 		d['_duration'] = str(int(program['duration']*60))
-		
+
 		d['_name'] = program['title']
 		#d['url'] = 'http://www.arte.tv/papi/tvguide/videos/stream/player/D/'+program['video']['emNumber']+'_PLUS7-D/ALL/ALL.json'
 		#d['url'] = 'http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/streams/'+program['video']['programId']+'/SHOW/ARTEPLUS7/de/DE'
 		#d['url'] = 'http://www.arte.tv/hbbtvv2/services/web/index.php/OPA/streams/'+program['video']['programId']+'/'+program['video']['kind']+'/'+program['video']['platform']+'/de/DE'
-		
+
 		d['url'] = 'https://api.arte.tv/api/player/v1/config/de/'+program['programId']+'?autostart=0&lifeCycle=1&lang=de_DE&config=arte_tvguide'
 		#d['programId'] = program['video']['programId']
-		
+
 		if program['imageUrl'] != None:
 			d['_thumb'] = program['imageUrl']
 		if program['teaserText'] != None:
@@ -356,7 +358,7 @@ def getDateNew(yyyymmdd):
 		for sticker in program['stickers']:
 			if sticker['code'] == 'FULL_VIDEO':
 				l.append(d)
-		
+
 	return l
 
 def getSearch(s):
@@ -392,20 +394,20 @@ preferences = {
 				'OV':2,
 				'OMU':3,
 				'DE':4,}
-	
+
 languages = {
 				'FR':'FR',
 				'OMU':'DE',
 				'DE':'DE'}
-				
+
 bitrates = {
 				'EQ':800,
 				'HQ':1500,
 				'SQ':2200,}
-	
+
 #legend:
 #
-#VO Original Voice	
+#VO Original Voice
 #VOA Original Voice	Allemande
 #VOF Original Voice Francaise
 #VA Voice Allemande
@@ -436,7 +438,7 @@ lang = {
 		'VF':'fr',
 		'VA-STA':'de',
 		'VF-STF':'fr',
-		
+
 		'VOA':'de',
 		'VOF':'fr',
 		'VOA-STA':'omu',
@@ -448,7 +450,7 @@ lang = {
 		'VE[ANG]':'en',
 		'VE[ESP]':'es',
 		'VE[POL]':'pl',
-		
+
 		'STA':'de',
 		'STF':'fr',
 		'STMA':'de',
@@ -467,7 +469,7 @@ def getVideoUrl(url):
 		properties = {}
 		properties['url'] = stream['url']
 		properties['bitrate'] = bitrates[stream['quality']]
-		
+
 		s = stream['audioCode'].split('-')
 		properties['lang'] = lang[s[0]]
 		if s[0] == 'VAAUD' or s[0] == 'VFAUD':
@@ -476,12 +478,12 @@ def getVideoUrl(url):
 			properties['subtitlelang'] = lang[s[1]]
 			if s[1] == 'STMA' or s[1] == 'STMF':
 				properties['sutitlemute'] = True
-		
+
 		properties['type'] = 'video'
 		properties['stream'] = 'MP4'
 		d['media'].append(properties)
 	return d
-	
+
 def getVideoUrlWeb(url):
 	d = {}
 	d['media'] = []
@@ -499,7 +501,7 @@ def getVideoUrlWeb(url):
 			storedLang = preferences.get(l,0)
 			result = {'url':j['videoJsonPlayer']['VSR'][key]['url'], 'type': 'video', 'stream':'HLS'}
 	d['media'].append(result)
-	
+
 	d['metadata'] = {}
 	d['metadata']['name'] = j['videoJsonPlayer']['VTI']
 	if 'VDE' in j['videoJsonPlayer']:
